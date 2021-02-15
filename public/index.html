@@ -9,18 +9,6 @@
   <!-- jQuery Modal -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
-  <script>
-    // var HOST = location.origin.replace(/^http/, 'ws')
-    // console.log("connecting to ", HOST)
-    // var ws = new WebSocket(HOST); 
-    // var el;
-
-    // ws.onmessage = function (event) {
-    //   // el = document.getElementById('server-time');
-    //  console.log('Server time: ' + event.data);
-    // };
-
-  </script>
 
   <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
   <meta charset="utf-8" />
@@ -31,13 +19,13 @@
   <!-- Modal HTML embedded directly into document -->
   <div id="ex1" class="modal">
     <p>Welcome to the eye please click anywhere to begin</p>
-    <a href="#" rel="modal:close">Close</a>
+    <a onClick="registerUserInteraction()" href="#" rel="modal:close">Close</a>
   </div>
 
   <!-- Link to open the modal -->
   <p><a id="modalOpen" href="#ex1" rel="modal:open">Open Modal</a></p>
   <script>
-    document.getElementById("modalOpen").click()
+
 
     let startingVideoUrl = "2.mp4"
 
@@ -53,10 +41,23 @@
     let currentColorPallette = 1
 
     let mySound;
-    let numTracks = 5
+    let numTracks = 13
     let soundFiles = []
     let currentSongIndex = 0
     let currentEyeVideoIndex = 0
+    let chatterTrack;
+
+    let minuteValue  = 60000
+    try {
+      console.log(window.location.search)
+      if (window.location.search.split("?").length > 1){
+        minuteValue  = 600
+        console.log("running things faster due to test ")
+      } 
+    } catch(e) {
+      console.log(e)
+      console.log("Running as normal")
+    }
     function incrementSong() {
       console.log("incrementing song")
       currentSongIndex++
@@ -65,10 +66,19 @@
       }
 
       soundFiles[currentSongIndex].play()
+      soundFiles[currentSongIndex].setVolume(0.9)
     }
     let i = 0
     function preload() {
-      soundFormats('mp3');
+      soundFormats('mp3','wav');
+      chatterTrack = loadSound(`/audio/ambien.wav`)
+      chatterTrack.onended(function(){
+        let timeToWait = (Math.floor(Math.random() * 10) + 1) * 1000; 
+        // console.log("waiting ", timeToWait)
+        // console.log("done setting timeout for next play")
+        setTimeout(() => {chatterTrack.play()}, timeToWait )
+      })
+
       // Provide a directory of sound files starting at 1 through numTracks 
       while (i < numTracks) {
         console.log(`/audio/${i + 1}.mp3`)
@@ -76,28 +86,18 @@
         soundFiles[i].onended(incrementSong)
         i++;
       }
+      document.getElementById("modalOpen").click()
+
     }
 
 
-    function setup() {
 
-      console.log("Creating image stream")
-      imageStream = createImg(src = CAMERA_URL, alt = "myCoolIMg", crossOrigin = "");
-      imageStream.hide();
-
-      console.log("Creating image stream")
-      setInterval(function () {
+    function updateVideoContent() {
+      console.log("Updating video content ")
         currentEyeVideoIndex = currentEyeVideoIndex + 1
         if (currentEyeVideoIndex >= eyeVideos.length) {
           currentEyeVideoIndex = 0
         }
-
-
-        // fetch('http://localhost:3000/a')
-        //   .then(response => response.json())
-        //   .then(function (data) {
-        //     console.log("fetching in setup")
-        //     console.log(data)
 
             try {
               console.log("In try loop")
@@ -111,12 +111,19 @@
               console.log("in interval", e)
 
             }
+            // At Minimum play for 5 minutes 
+            let videoFloorPlay = minuteValue * 5
+            let timeToWait = ((Math.floor(Math.random() * 10) + 1) * minuteValue) + videoFloorPlay; 
+            console.log("Waiting for another play ",timeToWait)
+            setTimeout(updateVideoContent,timeToWait)
+      }
+    function setup() {
 
+      imageStream = createImg(src = CAMERA_URL, alt = "imgStream", crossOrigin = "");
+      imageStream.hide();
 
-
-        //   })
-
-      }, 60000)
+      console.log("Creating image stream")
+      setTimeout(updateVideoContent, 10000)
 
 
       createCanvas(windowWidth, windowHeight);
@@ -128,6 +135,9 @@
       } catch (e) {
         console.log(e)
       }
+
+
+
     }
 
 
@@ -141,6 +151,9 @@
 
 
     function draw() {
+
+
+
       console.log()
       if (imageStream) {
         image(imageStream, 0, 0, windowWidth, windowHeight);
@@ -159,7 +172,11 @@
 
     function mousePressed() {
       // mySound.play();
+      chatterTrack.play()
+      chatterTrack.setVolume(0.2)
       soundFiles[currentSongIndex].play()
+      soundFiles[currentSongIndex].setVolume(0.9)
+
       currentEyeVideo.loop(); // set the video to loop and start playing
     }
   </script>

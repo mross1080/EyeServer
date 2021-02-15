@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.sound.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+
+  <!-- jQuery Modal -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+  <script>
+    // var HOST = location.origin.replace(/^http/, 'ws')
+    // console.log("connecting to ", HOST)
+    // var ws = new WebSocket(HOST); 
+    // var el;
+
+    // ws.onmessage = function (event) {
+    //   // el = document.getElementById('server-time');
+    //  console.log('Server time: ' + event.data);
+    // };
+
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+  <meta charset="utf-8" />
+
+</head>
+
+<body>
+  <!-- Modal HTML embedded directly into document -->
+  <div id="ex1" class="modal">
+    <p>Welcome to the eye please click anywhere to begin</p>
+    <a href="#" rel="modal:close">Close</a>
+  </div>
+
+  <!-- Link to open the modal -->
+  <p><a id="modalOpen" href="#ex1" rel="modal:open">Open Modal</a></p>
+  <script>
+    document.getElementById("modalOpen").click()
+
+    let startingVideoUrl = "2.mp4"
+
+
+    let imageStream;
+    let currentEyeVideo;
+    let COLOR_VALUES = [[255, 140, 210], [140, 180, 255], [255, 100, 100], [255, 240, 100], [150, 255, 100]]
+    let eyeVideos = ["2.mp4","3.mp4","4.mp4","5.mp4","6.mp4"]
+
+    var CAMERA_URL = "https://snippiest-skunk-2541.dataplicity.io/stream/0";
+    const windowWidth = window.innerWidth
+    const windowHeight = window.innerHeight
+    let currentColorPallette = 1
+
+    let mySound;
+    let numTracks = 5
+    let soundFiles = []
+    let currentSongIndex = 0
+    let currentEyeVideoIndex = 0
+    function incrementSong() {
+      console.log("incrementing song")
+      currentSongIndex++
+      if (currentSongIndex >= numTracks) {
+        currentSongIndex = 0
+      }
+
+      soundFiles[currentSongIndex].play()
+    }
+    let i = 0
+    function preload() {
+      soundFormats('mp3');
+      // Provide a directory of sound files starting at 1 through numTracks 
+      while (i < numTracks) {
+        console.log(`/audio/${i + 1}.mp3`)
+        soundFiles.push(loadSound(`/audio/${i + 1}.mp3`))
+        soundFiles[i].onended(incrementSong)
+        i++;
+      }
+    }
+
+
+    function setup() {
+
+      console.log("Creating image stream")
+      imageStream = createImg(src = CAMERA_URL, alt = "myCoolIMg", crossOrigin = "");
+      imageStream.hide();
+
+      console.log("Creating image stream")
+      setInterval(function () {
+        currentEyeVideoIndex = currentEyeVideoIndex + 1
+        if (currentEyeVideoIndex >= eyeVideos.length) {
+          currentEyeVideoIndex = 0
+        }
+
+
+        // fetch('http://localhost:3000/a')
+        //   .then(response => response.json())
+        //   .then(function (data) {
+        //     console.log("fetching in setup")
+        //     console.log(data)
+
+            try {
+              console.log("In try loop")
+              currentEyeVideo = createVideo(eyeVideos[currentEyeVideoIndex]);
+              currentColorPallette = Math.floor(Math.random() * COLOR_VALUES.length);
+
+              currentEyeVideo.hide();
+              currentEyeVideo.loop();
+
+            } catch (e) {
+              console.log("in interval", e)
+
+            }
+
+
+
+        //   })
+
+      }, 60000)
+
+
+      createCanvas(windowWidth, windowHeight);
+      try {
+        currentEyeVideo = createVideo("eye.mp4");
+        currentEyeVideo.hide(); // by default video shows up in separate dom
+
+
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+
+    function osc(speed = 1, offset = 0) {
+      return abs(sin(frameCount * 0.01 * speed + offset));
+    }
+    function oscNorm(speed = 1, offset = 0) {
+      return sin(frameCount * 0.01 * speed + offset) * 0.5 + 0.5;
+    }
+
+
+
+    function draw() {
+      console.log()
+      if (imageStream) {
+        image(imageStream, 0, 0, windowWidth, windowHeight);
+        tint(COLOR_VALUES[currentColorPallette][0], COLOR_VALUES[currentColorPallette][1], COLOR_VALUES[currentColorPallette][2], 160); // Display at half opacity
+
+
+        try {
+          image(currentEyeVideo, 0, 0, windowWidth, windowHeight); // draw the video frame to canvas
+
+        } catch (e) {
+          console.log(e)
+        }
+      }
+
+    }
+
+    function mousePressed() {
+      // mySound.play();
+      soundFiles[currentSongIndex].play()
+      currentEyeVideo.loop(); // set the video to loop and start playing
+    }
+  </script>
+</body>
+
+</html>

@@ -8,6 +8,7 @@ body {
   padding: 0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background-color: black;
+  overflow: hidden;
 }
 
 .modalText{

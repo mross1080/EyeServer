@@ -1,7 +1,20 @@
+@font-face {
+  font-family: Merri;
+  src: url(/fonts/Merriweather-Black.ttf);
+}
+
 body {
+  font-family: Merri !important;
   padding: 0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background-color: black;
+}
+
+.modalText{
+  font-family: Merri !important;
+  margin: 10px;
+  font-size: 20px;
+  text-align: center;
 }
 
 #modalOpen{

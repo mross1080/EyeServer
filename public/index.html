@@ -18,13 +18,20 @@
 <body>
   <!-- Modal HTML embedded directly into document -->
   <div id="ex1" class="modal">
-    <p>Welcome to the eye please click anywhere to begin</p>
-    <a onClick="registerUserInteraction()" href="#" rel="modal:close">Close</a>
+    <h3 class="modalText">Inside-out: Experience from within</h3>
+    <h3 class="modalText"> Click to enter Synesthesia</h3>
   </div>
 
   <!-- Link to open the modal -->
   <p><a id="modalOpen" href="#ex1" rel="modal:open">Open Modal</a></p>
   <script>
+  let startMediaTrigger = false;
+  let mediaStarted = false;
+    setTimeout(() =>{document.getElementsByClassName("blocker")[0].addEventListener("click",function(){startMediaTrigger=true;})},500)
+// const el = document.getElementsByClassName("blocker")[0];
+// el.addEventListener("click", function(){
+//   alert("hi")
+// }, false);
 
 
     let startingVideoUrl = "2.mp4"
@@ -152,7 +159,10 @@
 
 
     function draw() {
-
+      if (startMediaTrigger && !mediaStarted) {
+        startMedia()
+        mediaStarted = true
+      }
 
 
       console.log()
@@ -171,7 +181,7 @@
 
     }
 
-    function mousePressed() {
+    function startMedia() {
       // mySound.play();
       chatterTrack.play()
       chatterTrack.setVolume(0.2)

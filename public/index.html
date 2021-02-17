@@ -42,8 +42,13 @@
     let COLOR_VALUES = [[255, 140, 210], [140, 180, 255], [255, 100, 100], [255, 240, 100], [150, 255, 100]]
     let eyeVideos = ["2.mp4","3.mp4","4.mp4","5.mp4","6.mp4"]
 
+
+
+    // Matt Test Pi
     // var CAMERA_URL = "https://snippiest-skunk-2541.dataplicity.io/stream/0";
+    //Production Pi 
     var CAMERA_URL = "https://hypogene-bat-8651.dataplicity.io/stream/0"
+    
     const windowWidth = window.innerWidth
     const windowHeight = window.innerHeight
     let currentColorPallette = 1
@@ -53,13 +58,16 @@
     let soundFiles = []
     let currentSongIndex = 0
     let currentEyeVideoIndex = 0
+    let videoPlaying = false;
     let chatterTrack;
+    let eyePositionLookup = [{"xstart":-800,"ystart":-800},{"xstart":-800,"ystart":0},{"xstart":-800,"ystart":-100},
+    {"xstart":-1000,"ystart":-100},{"xstart":-1000,"ystart":-100}]
 
     let minuteValue  = 60000
     try {
       console.log(window.location.search)
       if (window.location.search.split("?").length > 1){
-        minuteValue  = 600
+        minuteValue  = 6000
         console.log("running things faster due to test ")
       } 
     } catch(e) {
@@ -108,12 +116,15 @@
         }
 
             try {
-              console.log("In try loop")
+              console.log("Nowplaying video : ", eyeVideos[currentEyeVideoIndex])
               currentEyeVideo = createVideo(eyeVideos[currentEyeVideoIndex]);
               currentColorPallette = Math.floor(Math.random() * COLOR_VALUES.length);
-
+              videoPlaying = true;
               currentEyeVideo.hide();
-              currentEyeVideo.loop();
+              currentEyeVideo.play();
+              setTimeout(function(){
+                videoPlaying = false;
+              },10000)
 
             } catch (e) {
               console.log("in interval", e)
@@ -131,12 +142,12 @@
       imageStream.hide();
 
       console.log("Creating image stream")
-      setTimeout(updateVideoContent, 10000)
+      setTimeout(updateVideoContent, 100)
 
 
       createCanvas(windowWidth, windowHeight);
       try {
-        currentEyeVideo = createVideo("eye.mp4");
+        currentEyeVideo = createVideo("2.mp4");
         currentEyeVideo.hide(); // by default video shows up in separate dom
 
 
@@ -172,7 +183,11 @@
 
 
         try {
-          image(currentEyeVideo, 0, 0, windowWidth, windowHeight); // draw the video frame to canvas
+          if (videoPlaying) {
+            image(currentEyeVideo, eyePositionLookup[currentEyeVideoIndex]["xstart"], eyePositionLookup[currentEyeVideoIndex]["ystart"], windowWidth*2, windowHeight*2); // draw the video frame to canvas
+
+          }
+          // image(currentEyeVideo, -1000, -100, windowWidth*2, windowHeight*2); // draw the video frame to canvas
 
         } catch (e) {
           console.log(e)
@@ -183,12 +198,13 @@
 
     function startMedia() {
       // mySound.play();
+      videoPlaying = true; 
       chatterTrack.play()
       chatterTrack.setVolume(0.2)
       soundFiles[currentSongIndex].play()
       soundFiles[currentSongIndex].setVolume(0.9)
 
-      currentEyeVideo.loop(); // set the video to loop and start playing
+      currentEyeVideo.play(); // set the video to loop and start playing
     }
   </script>
 </body>

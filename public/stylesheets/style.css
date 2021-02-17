@@ -35,7 +35,6 @@ body {
       -ms-flex-item-align: center;
           align-self: center;
   font-size: 1rem;
-  font-weight: 400;
   line-height: 1;
   margin: 10px;
   padding: 1.2em 1.8em;
@@ -43,7 +42,7 @@ body {
   text-align: center;
   text-transform: uppercase;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
+  font-weight: 100;
 }
 /* .btn:hover, .btn:focus {
   color: #fff;
@@ -54,6 +53,13 @@ body {
   font-family: Merri !important;
   margin: 10px;
   font-size: 20px;
+  text-align: center;
+}
+
+.buttonText{
+  font-family: Merri !important;
+  margin: 10px;
+  font-size: 15px;
   text-align: center;
 }
 

@@ -95,8 +95,8 @@
       soundFormats('mp3','wav');
       chatterTrack = loadSound(`/audio/ambien.wav`)
       chatterTrack.onended(function(){
-        let timeToWait = (Math.floor(Math.random() * 10) + 1) * 1000; 
-        // console.log("waiting ", timeToWait)
+        let timeToWait = ((Math.floor(Math.random() * 4 )) + 2 ) * 60000; 
+        console.log("waiting ", timeToWait)
         // console.log("done setting timeout for next play")
         setTimeout(() => {chatterTrack.play()}, timeToWait )
       })
@@ -206,9 +206,9 @@
       // mySound.play();
       videoPlaying = true; 
       chatterTrack.play()
-      chatterTrack.setVolume(0.2)
+      chatterTrack.setVolume(0.4)
       soundFiles[currentSongIndex].play()
-      soundFiles[currentSongIndex].setVolume(0.9)
+      soundFiles[currentSongIndex].setVolume(0.8)
 
       currentEyeVideo.play(); // set the video to loop and start playing
     }

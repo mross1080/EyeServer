@@ -8,7 +8,7 @@
 
   <!-- jQuery Modal -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+  <link rel="stylesheet" href="/stylesheets/jquery.modal.css" />
 
   <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
   <meta charset="utf-8" />
@@ -19,7 +19,9 @@
   <!-- Modal HTML embedded directly into document -->
   <div id="ex1" class="modal">
     <h3 class="modalText">Inside-out: Experience from within</h3>
-    <h3 class="modalText"> Click to enter Synesthesia</h3>
+    <div class="centered"><a href="#" rel="modal:close">
+      <button rel="modal:open" onclick="startExperience()" class="modalText btn first"> Click to enter Synesthesia</button></a>
+    </div>
   </div>
 
   <!-- Link to open the modal -->
@@ -27,7 +29,11 @@
   <script>
   let startMediaTrigger = false;
   let mediaStarted = false;
-    setTimeout(() =>{document.getElementsByClassName("blocker")[0].addEventListener("click",function(){startMediaTrigger=true;})},500)
+  function startExperience() {
+    console.log("Starting experience")
+    startMediaTrigger=true
+  }
+  // setTimeout(() =>{document.getElementsByClassName("blocker")[0].addEventListener("click",function(){startMediaTrigger=true;})},500)
 // const el = document.getElementsByClassName("blocker")[0];
 // el.addEventListener("click", function(){
 //   alert("hi")

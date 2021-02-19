@@ -30,7 +30,7 @@
   let startMediaTrigger = false;
   let mediaStarted = false;
   function startExperience() {
-    console.log("Starting experience")
+    console.log("Got User Interaction Starting experience")
     startMediaTrigger=true
   }
   // setTimeout(() =>{document.getElementsByClassName("blocker")[0].addEventListener("click",function(){startMediaTrigger=true;})},500)
@@ -66,20 +66,29 @@
     let currentEyeVideoIndex = 0
     let videoPlaying = false;
     let chatterTrack;
+    let fadingOutVideo = false;
+    let displayOpacityLevel = 160
+    let currentOpacityLevel = displayOpacityLevel; 
     let eyePositionLookup = [{"xstart":-800,"ystart":-800},{"xstart":-800,"ystart":0},{"xstart":-800,"ystart":-100},
     {"xstart":-1000,"ystart":-100},{"xstart":-1000,"ystart":-100}]
 
-    let minuteValue  = 60000
-    try {
-      console.log(window.location.search)
-      if (window.location.search.split("?").length > 1){
-        minuteValue  = 6000
-        console.log("running things faster due to test ")
-      } 
-    } catch(e) {
-      console.log(e)
-      console.log("Running as normal")
-    }
+    // Once every 5 - 15 minutes
+    // let minuteValue  = 60000
+
+    // Once every minute
+    let minuteValue = 6000
+
+    //Block of code commented out in case we want to pass through params 
+    // try {
+    //   console.log(window.location.search)
+    //   if (window.location.search.split("?").length > 1){
+    //     minuteValue  = 6000
+    //     console.log("running things faster due to test ")
+    //   } 
+    // } catch(e) {
+    //   console.log(e)
+    //   console.log("Running as normal")
+    // }
     function incrementSong() {
       console.log("incrementing song")
       currentSongIndex++
@@ -112,7 +121,7 @@
 
     }
 
-
+    
 
     function updateVideoContent() {
       console.log("Updating video content ")
@@ -128,8 +137,11 @@
               videoPlaying = true;
               currentEyeVideo.hide();
               currentEyeVideo.play();
+              currentOpacityLevel = displayOpacityLevel
               setTimeout(function(){
-                videoPlaying = false;
+                // videoPlaying = false;
+                // Start Video Fade out
+                fadingOutVideo = true;
               },10000)
 
             } catch (e) {
@@ -139,7 +151,7 @@
             // At Minimum play for 5 minutes 
             let videoFloorPlay = minuteValue * 5
             let timeToWait = ((Math.floor(Math.random() * 10) + 1) * minuteValue) + videoFloorPlay; 
-            console.log("Waiting for another play ",timeToWait)
+            console.log(`Waiting ${timeToWait}millis to play next video `)
             setTimeout(updateVideoContent,timeToWait)
       }
     function setup() {
@@ -182,14 +194,20 @@
       }
 
 
-      console.log()
       if (imageStream) {
         image(imageStream, 0, 0, windowWidth, windowHeight);
-        tint(COLOR_VALUES[currentColorPallette][0], COLOR_VALUES[currentColorPallette][1], COLOR_VALUES[currentColorPallette][2], 160); // Display at half opacity
+        tint(COLOR_VALUES[currentColorPallette][0], COLOR_VALUES[currentColorPallette][1], COLOR_VALUES[currentColorPallette][2], currentOpacityLevel); // Display at half opacity
 
 
         try {
           if (videoPlaying) {
+            if (fadingOutVideo) {
+              currentOpacityLevel -= .5
+              if (currentOpacityLevel < 10) {
+                fadingOutVideo = false;
+                videoPlaying = false;
+              }
+            }
             image(currentEyeVideo, eyePositionLookup[currentEyeVideoIndex]["xstart"], eyePositionLookup[currentEyeVideoIndex]["ystart"], windowWidth*2, windowHeight*2); // draw the video frame to canvas
 
           }

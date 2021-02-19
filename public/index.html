@@ -67,8 +67,10 @@
     let videoPlaying = false;
     let chatterTrack;
     let fadingOutVideo = false;
+    let fadingInVideo = false; 
     let displayOpacityLevel = 160
-    let currentOpacityLevel = displayOpacityLevel; 
+    let currentOpacityLevel = 0; 
+
     let eyePositionLookup = [{"xstart":-800,"ystart":-800},{"xstart":-800,"ystart":0},{"xstart":-800,"ystart":-100},
     {"xstart":-1000,"ystart":-100},{"xstart":-1000,"ystart":-100}]
 
@@ -137,9 +139,11 @@
               videoPlaying = true;
               currentEyeVideo.hide();
               currentEyeVideo.play();
-              currentOpacityLevel = displayOpacityLevel
+              currentOpacityLevel = 0
+              fadingInVideo = true;
               setTimeout(function(){
                 // videoPlaying = false;
+                console.log("Beginning fade out ")
                 // Start Video Fade out
                 fadingOutVideo = true;
               },10000)
@@ -201,7 +205,18 @@
 
         try {
           if (videoPlaying) {
+
+            if (fadingInVideo) {
+              console.log("Fading video in ", currentOpacityLevel)
+              currentOpacityLevel += 2.5
+              if (currentOpacityLevel > displayOpacityLevel) {
+                fadingInVideo = false;
+              }
+            }
+
             if (fadingOutVideo) {
+              console.log("Fading video out ", currentOpacityLevel)
+
               currentOpacityLevel -= .5
               if (currentOpacityLevel < 10) {
                 fadingOutVideo = false;

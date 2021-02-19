@@ -78,7 +78,7 @@
     // let minuteValue  = 60000
 
     // Once every minute
-    let minuteValue = 6000
+    let minuteValue = 11000
 
     //Block of code commented out in case we want to pass through params 
     // try {
@@ -138,7 +138,7 @@
               currentColorPallette = Math.floor(Math.random() * COLOR_VALUES.length);
               videoPlaying = true;
               currentEyeVideo.hide();
-              currentEyeVideo.play();
+              currentEyeVideo.loop();
               currentOpacityLevel = 0
               fadingInVideo = true;
               setTimeout(function(){
@@ -146,7 +146,7 @@
                 console.log("Beginning fade out ")
                 // Start Video Fade out
                 fadingOutVideo = true;
-              },10000)
+              },20000)
 
             } catch (e) {
               console.log("in interval", e)

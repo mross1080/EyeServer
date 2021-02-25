@@ -3,8 +3,9 @@
 
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.sound.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+  <script src="/javascripts/howler.min.js"></script>
+  <script src="/javascripts/logger.min.js"></script>
 
   <!-- jQuery Modal -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
@@ -20,24 +21,24 @@
   <div id="ex1" class="modal">
     <h3 class="modalText">Inside-out: Experience from within</h3>
     <div class="centered"><a href="#" rel="modal:close">
-      <button rel="modal:open" onclick="startExperience()" class="buttonText  btn first"> Click to enter Synesthesia</button></a>
+        <button rel="modal:open" onclick="startExperience()" class="buttonText  btn first"> Click to enter
+          Synesthesia</button></a>
     </div>
   </div>
 
   <!-- Link to open the modal -->
   <p><a id="modalOpen" href="#ex1" rel="modal:open">Open Modal</a></p>
   <script>
-  let startMediaTrigger = false;
-  let mediaStarted = false;
-  function startExperience() {
-    console.log("Got User Interaction Starting experience")
-    startMediaTrigger=true
-  }
-  // setTimeout(() =>{document.getElementsByClassName("blocker")[0].addEventListener("click",function(){startMediaTrigger=true;})},500)
-// const el = document.getElementsByClassName("blocker")[0];
-// el.addEventListener("click", function(){
-//   alert("hi")
-// }, false);
+    Logger.useDefaults();
+    Logger.setLevel(Logger.WARN);
+
+    let startMediaTrigger = false;
+    let mediaStarted = false;
+    function startExperience() {
+      Logger.info("Got User Interaction Starting experience")
+      startMediaTrigger = true
+    }
+
 
 
     let startingVideoUrl = "2.mp4"
@@ -46,15 +47,24 @@
     let imageStream;
     let currentEyeVideo;
     let COLOR_VALUES = [[255, 140, 210], [140, 180, 255], [255, 100, 100], [255, 240, 100], [150, 255, 100]]
-    let eyeVideos = ["2.mp4","3.mp4","4.mp4","5.mp4","6.mp4"]
+    let eyeVideos = ["2.mp4", "3.mp4", "4.mp4", "5.mp4", "6.mp4"]
 
+    function inIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
+      }
+    }
+
+    Logger.info("in iframe? ", inIframe())
 
 
     // Matt Test Pi
     // var CAMERA_URL = "https://snippiest-skunk-2541.dataplicity.io/stream/0";
     //Production Pi 
     var CAMERA_URL = "https://hypogene-bat-8651.dataplicity.io/stream/0"
-    
+
     const windowWidth = window.innerWidth
     const windowHeight = window.innerHeight
     let currentColorPallette = 1
@@ -67,12 +77,15 @@
     let videoPlaying = false;
     let chatterTrack;
     let fadingOutVideo = false;
-    let fadingInVideo = false; 
+    let fadingInVideo = false;
     let displayOpacityLevel = 160
-    let currentOpacityLevel = 0; 
+    let currentOpacityLevel = 0;
 
-    let eyePositionLookup = [{"xstart":-800,"ystart":-800},{"xstart":-800,"ystart":0},{"xstart":-800,"ystart":-100},
-    {"xstart":-1000,"ystart":-100},{"xstart":-1000,"ystart":-100}]
+    //Set the standard value for dividing our X Values by, if in an iframe we want to cut in half 
+    let displayResolutionFactor = 1
+
+    let eyePositionLookup = [{ "xstart": -800, "ystart": -800 }, { "xstart": -800, "ystart": 0 }, { "xstart": -800, "ystart": -100 },
+    { "xstart": -1000, "ystart": -100 }, { "xstart": -1000, "ystart": -100 }]
 
     // Once every 5 - 15 minutes
     // let minuteValue  = 60000
@@ -80,91 +93,107 @@
     // Once every minute
     let minuteValue = 11000
 
+    if (inIframe()) {
+      displayResolutionFactor = 2
+    }
+
     //Block of code commented out in case we want to pass through params 
     // try {
-    //   console.log(window.location.search)
+    //   Logger.info(window.location.search)
     //   if (window.location.search.split("?").length > 1){
     //     minuteValue  = 6000
-    //     console.log("running things faster due to test ")
+    //     Logger.info("running things faster due to test ")
     //   } 
     // } catch(e) {
-    //   console.log(e)
-    //   console.log("Running as normal")
+    //   Logger.info(e)
+    //   Logger.info("Running as normal")
     // }
     function incrementSong() {
-      console.log("incrementing song")
+      Logger.info("incrementing song")
       currentSongIndex++
       if (currentSongIndex >= numTracks) {
         currentSongIndex = 0
       }
 
       soundFiles[currentSongIndex].play()
-      soundFiles[currentSongIndex].setVolume(0.9)
     }
+
     let i = 0
     function preload() {
-      soundFormats('mp3','wav');
-      chatterTrack = loadSound(`/audio/ambien.wav`)
-      chatterTrack.onended(function(){
-        let timeToWait = ((Math.floor(Math.random() * 4 )) + 2 ) * 60000; 
-        console.log("waiting ", timeToWait)
-        // console.log("done setting timeout for next play")
-        setTimeout(() => {chatterTrack.play()}, timeToWait )
-      })
+      //Howler js 
+      chatterTrack = new Howl({
+        src: [`/audio/ambien.wav`],
+        volume: 0.4,
+      });
+      chatterTrack.on('end', function () {
+        let timeToWait = ((Math.floor(Math.random() * 4)) + 2) * 60000;
+        Logger.info("waiting ", timeToWait)
+        // Logger.info("done setting timeout for next play")
+        setTimeout(() => { chatterTrack.play() }, timeToWait)
+      });
 
       // Provide a directory of sound files starting at 1 through numTracks 
       while (i < numTracks) {
-        console.log(`/audio/${i + 1}.mp3`)
-        soundFiles.push(loadSound(`/audio/${i + 1}.mp3`))
-        soundFiles[i].onended(incrementSong)
+        Logger.info(`/audio/${i + 1}.mp3`)
+        //Howler js 
+        var sound = new Howl({
+          src: [`/audio/${i + 1}.mp3`],
+          volume: 0.8,
+        });
+        sound.on('end', incrementSong);
+        soundFiles.push(sound)
+
+        //P5 Sound 
+        // soundFiles.push(loadSound(`/audio/${i + 1}.mp3`))
+        // soundFiles[i].onended(incrementSong)
         i++;
       }
       document.getElementById("modalOpen").click()
-
+      Logger.warn("All Media Content Loaded ")
     }
 
-    
+
 
     function updateVideoContent() {
-      console.log("Updating video content ")
-        currentEyeVideoIndex = currentEyeVideoIndex + 1
-        if (currentEyeVideoIndex >= eyeVideos.length) {
-          currentEyeVideoIndex = 0
-        }
-
-            try {
-              console.log("Nowplaying video : ", eyeVideos[currentEyeVideoIndex])
-              currentEyeVideo = createVideo(eyeVideos[currentEyeVideoIndex]);
-              currentColorPallette = Math.floor(Math.random() * COLOR_VALUES.length);
-              videoPlaying = true;
-              currentEyeVideo.hide();
-              currentEyeVideo.loop();
-              currentOpacityLevel = 0
-              fadingInVideo = true;
-              setTimeout(function(){
-                // videoPlaying = false;
-                console.log("Beginning fade out ")
-                // Start Video Fade out
-                fadingOutVideo = true;
-              },20000)
-
-            } catch (e) {
-              console.log("in interval", e)
-
-            }
-            // At Minimum play for 5 minutes 
-            let videoFloorPlay = minuteValue * 5
-            let timeToWait = ((Math.floor(Math.random() * 10) + 1) * minuteValue) + videoFloorPlay; 
-            console.log(`Waiting ${timeToWait}millis to play next video `)
-            setTimeout(updateVideoContent,timeToWait)
+      Logger.info("Updating video content ")
+      currentEyeVideoIndex = currentEyeVideoIndex + 1
+      if (currentEyeVideoIndex >= eyeVideos.length) {
+        currentEyeVideoIndex = 0
       }
+
+      try {
+        Logger.info("Nowplaying video : ", eyeVideos[currentEyeVideoIndex])
+        currentEyeVideo = createVideo(eyeVideos[currentEyeVideoIndex]);
+        currentColorPallette = Math.floor(Math.random() * COLOR_VALUES.length);
+        videoPlaying = true;
+        currentEyeVideo.hide();
+        currentEyeVideo.loop();
+        currentOpacityLevel = 0
+        fadingInVideo = true;
+        setTimeout(function () {
+          // videoPlaying = false;
+          Logger.info("Beginning fade out ")
+          // Start Video Fade out after Playing Video for 20seconds including fade in time 
+          fadingOutVideo = true;
+        }, 20000)
+
+      } catch (e) {
+        Logger.info("in interval", e)
+
+      }
+      // At Minimum play for 5 minutes 
+      let videoFloorPlay = minuteValue * 5
+      let timeToWait = ((Math.floor(Math.random() * 10) + 1) * minuteValue) + videoFloorPlay;
+      Logger.info(`Waiting ${timeToWait}millis to play next video `)
+      setTimeout(updateVideoContent, timeToWait)
+    }
     function setup() {
 
       imageStream = createImg(src = CAMERA_URL, alt = "imgStream", crossOrigin = "");
       imageStream.hide();
 
-      console.log("Creating image stream")
-      setTimeout(updateVideoContent, 100)
+      Logger.warn("In setup, creating global variables for streams")
+      // setTimeout(updateVideoContent, 1000)
 
 
       createCanvas(windowWidth, windowHeight);
@@ -174,7 +203,7 @@
 
 
       } catch (e) {
-        console.log(e)
+        Logger.info(e)
       }
 
 
@@ -193,6 +222,8 @@
 
     function draw() {
       if (startMediaTrigger && !mediaStarted) {
+        setTimeout(updateVideoContent, 1000)
+
         startMedia()
         mediaStarted = true
       }
@@ -207,15 +238,17 @@
           if (videoPlaying) {
 
             if (fadingInVideo) {
-              console.log("Fading video in ", currentOpacityLevel)
+              // Logger.info("Fading video in ", currentOpacityLevel)
               currentOpacityLevel += 2.5
               if (currentOpacityLevel > displayOpacityLevel) {
                 fadingInVideo = false;
+                Logger.info("Fading video out ", currentOpacityLevel)
+
               }
             }
 
             if (fadingOutVideo) {
-              console.log("Fading video out ", currentOpacityLevel)
+              // Logger.info("Fading video out ", currentOpacityLevel)
 
               currentOpacityLevel -= .5
               if (currentOpacityLevel < 10) {
@@ -223,13 +256,13 @@
                 videoPlaying = false;
               }
             }
-            image(currentEyeVideo, eyePositionLookup[currentEyeVideoIndex]["xstart"], eyePositionLookup[currentEyeVideoIndex]["ystart"], windowWidth*2, windowHeight*2); // draw the video frame to canvas
+            image(currentEyeVideo, eyePositionLookup[currentEyeVideoIndex]["xstart"] / displayResolutionFactor, eyePositionLookup[currentEyeVideoIndex]["ystart"], windowWidth * 2, windowHeight * 2); // draw the video frame to canvas
 
           }
           // image(currentEyeVideo, -1000, -100, windowWidth*2, windowHeight*2); // draw the video frame to canvas
 
         } catch (e) {
-          console.log(e)
+          Logger.info(e)
         }
       }
 
@@ -237,11 +270,11 @@
 
     function startMedia() {
       // mySound.play();
-      videoPlaying = true; 
+      videoPlaying = true;
       chatterTrack.play()
-      chatterTrack.setVolume(0.4)
+      // chatterTrack.setVolume(0.4)
       soundFiles[currentSongIndex].play()
-      soundFiles[currentSongIndex].setVolume(0.8)
+      // soundFiles[currentSongIndex].setVolume(0.8)
 
       currentEyeVideo.play(); // set the video to loop and start playing
     }
